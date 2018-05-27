@@ -19,7 +19,6 @@ feature:
   - vfio
   - vfio_iommu_type1
   - vfio_pci
-  - ip6_tables
 - docker
 - check apparmor/selinux
 
@@ -52,7 +51,6 @@ update-grub
 vfio-pci ids=10de:13c2,10de:0fbb
 vfio
 vfio_iommu_type1
-ip6_tables
 ```
 ```
 update-grub
