@@ -19,6 +19,7 @@ if [ ! -f /opt/qemu-2.11.1/build/x86_64-softmmu/qemu-system-x86_64 ]; then
   mkdir build || true && \
   cd build && \
   ../configure --prefix=/opt/qemu-test --python=/usr/bin/python2 --target-list=x86_64-softmmu --audio-drv-list=pa --disable-werror && \
+  sed -i "s/^user =.*/user = \"$SUDO_USER\"/g" /etc/libvirt/qemu.conf
   ln -s /opt/qemu-2.11.1/build/x86_64-softmmu/qemu-system-x86_64 /usr/local/bin/qemu-system-x86_64
   ln -s /opt/qemu-2.11.1/build/qemu-img /usr/local/bin/qemu-img
   make
