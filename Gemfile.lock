@@ -1,7 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    ffi (1.9.23)
+    ffi (1.9.24)
     libusb (0.6.4)
       ffi (~> 1.0)
       mini_portile2 (~> 2.1)

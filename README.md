@@ -22,7 +22,7 @@ feature:
 - docker
 - check apparmor/selinux
 
-## prepare
+## prepare gpu
 
 **1\. modify this line in /etc/default/grub (disable video output)**  
 
@@ -55,7 +55,7 @@ vfio_iommu_type1
 ```
 update-grub
 ```
-**4a\. if method above doesn't work use pci-stup as a kernel parameter /etc/initramfs-tools/modules
+**4a\. if method above doesn't work use pci-stub as a kernel parameter /etc/initramfs-tools/modules
 
 ```
 pci-stub.ids=10de:13c2,10de:0fbb
@@ -85,8 +85,16 @@ apt-get remove apparmor
 reboot
 ```
 
+## prepare permission
+
+Ensure that yout user have NOPASSWD option in file /etc/sudoers
+```
+myuser ALL=(ALL:ALL) NOPASSWD: ALL
+```
+
 ## usage
 
 ```
-sudo bash ./run.sh
+chmod +x run.sh
+./run.sh
 ```
