@@ -80,16 +80,6 @@ update-rc.d -f apparmor remove
 apt-get remove apparmor
 ```
 
-
-**6\. install docker**  
-```
-export CHANNEL=stable
-curl -fsSL get.docker.com -o get-docker.sh
-sh get-docker.sh
-systemctl enable docker
-systemctl start docker
-```
-
 **7\. reboot to make those changes effective**  
 ```
 reboot

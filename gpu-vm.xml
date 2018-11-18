@@ -1,0 +1,94 @@
+<domain type='kvm' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
+  <name>gpu-vm</name>
+  <uuid>4a1d9c86-bd96-48b4-b832-ea1dfdbc8abc</uuid>
+  <memory>8388608</memory>
+  <currentMemory>8388608</currentMemory>
+  <vcpu>4</vcpu>
+  <os>
+    <type arch="x86_64">hvm</type>
+    <boot dev="hd"/>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+  </features>
+  <cpu mode="host-model">
+    <topology sockets="1" cores="4" threads="1"/>
+  </cpu>
+  <clock offset="utc">
+    <timer name="rtc" tickpolicy="catchup"/>
+    <timer name="pit" tickpolicy="delay"/>
+    <timer name="hpet" present="no"/>
+  </clock>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>restart</on_crash>
+  <pm>
+    <suspend-to-mem enabled="no"/>
+    <suspend-to-disk enabled="no"/>
+  </pm>
+  <devices>
+    <emulator>/usr/bin/qemu-system-x86_64</emulator>
+    <disk type="file" device="disk">
+      <driver name="qemu" type="qcow2"/>
+      <source file="/home/lop/.vagrant.d/boxes/Microsoft-VAGRANTSLASH-EdgeOnWindows10/1.0/libvirt/box.img"/>
+      <target dev="hda" bus="ide"/>
+    </disk>
+    <controller type="usb" index="0" model="ich9-ehci1"/>
+    <controller type="usb" index="0" model="ich9-uhci1">
+      <master startport="0"/>
+    </controller>
+    <controller type="usb" index="0" model="ich9-uhci2">
+      <master startport="2"/>
+    </controller>
+    <controller type="usb" index="0" model="ich9-uhci3">
+      <master startport="4"/>
+    </controller>
+    <interface type="network">
+      <source network="default"/>
+      <mac address="52:54:00:c7:0f:e9"/>
+    </interface>
+    <input type="mouse" bus="ps2"/>
+    <console type="pty"/>
+    <sound model="ich6"/>
+    <video>
+      <model type="cirrus"/>
+    </video>
+    <hostdev mode="subsystem" type="pci" managed="yes">
+      <source>
+        <address domain="0" bus="2" slot="0" function="0"/>
+      </source>
+    </hostdev>
+    <hostdev mode="subsystem" type="pci" managed="yes">
+      <source>
+        <address domain="0" bus="2" slot="0" function="1"/>
+      </source>
+    </hostdev>
+    <hostdev mode="subsystem" type="usb" managed="yes">
+      <source>
+        <vendor id="0x0b38"/>
+        <product id="0x0010"/>
+      </source>
+    </hostdev>
+    <hostdev mode="subsystem" type="usb" managed="yes">
+      <source>
+        <vendor id="0x045e"/>
+        <product id="0x0040"/>
+      </source>
+    </hostdev>
+    <hostdev mode="subsystem" type="usb" managed="yes">
+      <source>
+        <vendor id="0x04d9"/>
+        <product id="0x0169"/>
+      </source>
+    </hostdev>
+  </devices>
+  <qemu:commandline>
+    <qemu:env name="QEMU_AUDIO_DRV" value="pa"/>
+    <qemu:env name="QEMU_PA_SAMPLES" value="8192"/>
+    <qemu:env name="QEMU_AUDIO_TIMER_PERIOD" value="99"/>
+    <qemu:env name="QEMU_PA_SERVER" value="/run/user/1000/pulse/native"/>
+  </qemu:commandline>
+</domain>
+
+

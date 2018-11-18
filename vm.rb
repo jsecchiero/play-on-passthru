@@ -1,8 +1,11 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+require 'concurrent'
 load 'pci_devices.rb'
 load 'usb_devices.rb'
+
+gpu_vm = "test123"
 
 radeon_gpu = get_pci_id('Device','Radeon')
 nvidia_gpu = get_pci_id('Vendor','Nvidia').keep_if { |k, v| get_pci_id('Class','VGA').key? k }
@@ -28,36 +31,52 @@ usbs.each do |usb|
   usbs_cmd = "#{usbs_cmd} --host-device 0x#{vendor}:0x#{product}"
 end
 
+# Get cpu core available
+cpu_ava = Concurrent.physical_processor_count - 1
+
 # Generate libvirt xml compatibile file with all vga and usb detected
 cmd_write_xml = "
-virt-install              \
---boot hd                 \
---virt-type kvm           \
---name gpu-vm             \
---memory 8192             \
---cpu host                \
---vcpus sockets=1,cores=4 \
---sound ich6              \
---video cirrus            \
---graphics none           \
---noautoconsole           \
-#{gpus_cmd}               \
-#{usbs_cmd}               \
---disk $HOME/.vagrant.d/boxes/Microsoft-VAGRANTSLASH-EdgeOnWindows10/1.0/libvirt/box.img \
---print-xml > gpu-vm.xml
+virt-install                       \
+--boot hd                          \
+--virt-type kvm                    \
+--name #{gpu_vm}                   \
+--memory 8192                      \
+--cpu host-passthrough             \
+--vcpus sockets=1,cores=#{cpu_ava} \
+--sound ich6                       \
+--video cirrus                     \
+--graphics none                    \
+--noautoconsole                    \
+#{gpus_cmd}                        \
+#{usbs_cmd}                        \
+--disk $HOME/.vagrant.d/boxes/Microsoft-VAGRANTSLASH-EdgeOnWindows10/1.0/libvirt/boxtest123.img \
+--print-xml > #{gpu_vm}.xml
 "
 
 system cmd_write_xml
 
+
 # Change xml header to support qemu custom command
-file_name = 'gpu-vm.xml'
+file_name = "#{gpu_vm}.xml"
 text = File.read(file_name)
 new_contents = text.gsub(/^<domain type="kvm">/, "<domain type='kvm' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>")
+new_contents = new_contents.gsub(/^  <vcpu>.*$/, "  <vcpu placement='static'>#{cpu_ava}</vcpu>")
 puts new_contents
 File.open(file_name, "w") {|file| file.puts new_contents }
 
-# Put qemu custom command for pulseaudio support
-qemu_custom = <<-eos
+# Define cpu pin
+qemu_cpu = ""
+qemu_cpu.concat("  <cputune>\n")
+$i = 0
+while $i < cpu_ava do
+  $ii = $i + 1
+  qemu_cpu.concat("    <vcpupin vcpu=\'#{$i}\' cpuset=\'#{$ii}\'/>\n")
+  $i += 1
+end
+qemu_cpu.concat("  </cputune>\n")
+
+# Define pulseaudio
+qemu_pulseaudio = <<-eos
   <qemu:commandline>
     <qemu:env name="QEMU_AUDIO_DRV" value="pa"\/>
     <qemu:env name="QEMU_PA_SAMPLES" value="8192"\/>
@@ -67,12 +86,18 @@ qemu_custom = <<-eos
 </domain>
 eos
 
-file_name = 'gpu-vm.xml'
+# Put qemu custom command for pulseaudio support
+qemu_custom = ""
+qemu_custom.concat(qemu_cpu)
+qemu_custom.concat(qemu_pulseaudio)
+
+
+file_name = "#{gpu_vm}.xml"
 text = File.read(file_name)
 new_contents = text.gsub(/<\/domain>/, qemu_custom)
 puts new_contents
 File.open(file_name, "w") {|file| file.puts new_contents }
 
 # define xml to libvirt
-cmd_define = "virsh define gpu-vm.xml"
+cmd_define = "virsh define #{gpu_vm}.xml"
 system cmd_define
