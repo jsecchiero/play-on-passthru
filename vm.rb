@@ -49,7 +49,7 @@ virt-install                       \
 --noautoconsole                    \
 #{gpus_cmd}                        \
 #{usbs_cmd}                        \
---disk $HOME/.vagrant.d/boxes/Microsoft-VAGRANTSLASH-EdgeOnWindows10/1.0/libvirt/boxtest123.img \
+--disk $HOME/.vagrant.d/boxes/Microsoft-VAGRANTSLASH-EdgeOnWindows10/1.0/libvirt/box.img \
 --print-xml > #{gpu_vm}.xml
 "
 
