@@ -32,7 +32,7 @@ usbs.each do |usb|
 end
 
 # Get cpu core available
-cpu_ava = Concurrent.physical_processor_count - 1
+cpu_ava = Concurrent.processor_count - 1
 
 # Generate libvirt xml compatibile file with all vga and usb detected
 cmd_write_xml = "
